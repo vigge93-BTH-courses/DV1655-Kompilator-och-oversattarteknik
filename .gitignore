@@ -1,2 +1,6 @@
 compiler
 lex.yy.c
+*.cc
+*.hh
+*.o
+*.dot
