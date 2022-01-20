@@ -6,15 +6,15 @@
 %option noyywrap nounput batch noinput stack
 %%
 
-"+"                     {return yy::parser::make_PLUSOP(yytext);}
-"*"                     {return yy::parser::make_MULTOP(yytext);}
-"("                     {return yy::parser::make_LP(yytext);}
-")"                     {return yy::parser::make_RP(yytext);}
+"+" {return yy::parser::make_PLUSOP(yytext);}
+"*" {return yy::parser::make_MULTOP(yytext);}
+"(" {return yy::parser::make_LP(yytext);}
+")" {return yy::parser::make_RP(yytext);}
 
-0|[1-9][0-9]*           {return yy::parser::make_INT(yytext);}
+0|[1-9][0-9]*   {return yy::parser::make_INT(yytext);}
 
 
-[ \t\n]+                  {}
+[ \t\n]+    {}
 
-<<EOF>>                 return yy::parser::make_END();
+<<EOF>> return yy::parser::make_END();
 %%
