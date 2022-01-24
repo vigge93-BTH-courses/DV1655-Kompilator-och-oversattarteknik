@@ -52,8 +52,8 @@ COMMENT \/\/.*
 {IDENTIFIER} {printf("ID: %s\n", yytext);}
 {COMMENT} {printf("COMMENT: %s\n", yytext);}
 [ \t\n]+ {}
-. {if (buf == NULL) buf = malloc(10); buf[next_buff_pos] = yytext[0]; next_buff_pos += 1; if (next_buff_pos == buff_size) {buff_size = buff_size*2; buf = realloc(buf, buff_size);}}
-<<EOF>> return yyerror(buf);
+. {if (buf == NULL) buf = malloc(10); buf[next_buff_pos] = yytext[0]; next_buff_pos++; if (next_buff_pos == buff_size) {buff_size = buff_size*2; buf = realloc(buf, buff_size);}}
+<<EOF>> {if (buf != NULL) {buf[next_buff_pos] = '\0'; return yyerror(buf);} else {return 0;}}
 %%
 int yyerror (char const *s) {
    fprintf (stderr, "Unrecognized inputs: %s\n", s);
