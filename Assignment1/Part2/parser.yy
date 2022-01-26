@@ -25,10 +25,7 @@
 %type <Node *> Goal MainClass ClassDeclaration ClassBody ClassDeclarationP ClassDeclarationMethods ClassDeclarationVars VarDeclaration MethodDeclaration MethodBody MethodDeclarationParams MethodDeclarationVars MethodDeclarationStatements Type Statement LRStatement Expression orExpression andExpression eqExpression lgExpression  multdivExpression  notExpression comExpression addsubExpression  parExpression  Identifier Int 
 
 %%
-/* Goal:
-  | Statement Goal {$$ = new Node("Root statement", ""); $$->children.push_back($1); $$->children.push_back($2); root = $$;}
-  | Statement {$$ = new Node("Root statement", ""); $$->children.push_back($1); if (root == NULL) {root = $$;}};
-  | Statement END {$$ = new Node("Root expression", ""); $$->children.push_back($1); if (root == NULL) {root = $$;}}; */
+
 
 Goal:
   MainClass END  {$$ = $1; root = $$;}
@@ -130,17 +127,16 @@ parExpression: Identifier {$$ = $1;}
   | FALSE {$$ = new Node("FALSE", "");}
   | THIS {$$ = new Node("THIS", "");}
   | LPAR Expression RPAR {$$ = new Node("(Expression)", ""); $$->children.push_back($2);} 
-  | Expression LBRACKET Expression RBRACKET {$$ = new Node("Array access", ""); $$->children.push_back($1); $$->children.push_back($3);}
-  | Expression DOT Identifier LPAR comExpression RPAR {$$ = new Node("Method call", ""); $$->children.push_back($1); $$->children.push_back($3); $$->children.push_back($5);}
-  | Expression DOT Identifier LPAR RPAR {$$ = new Node("Method call", ""); $$->children.push_back($1); $$->children.push_back($3);}
-  | Expression DOT LENGTH {$$ = new Node("Exp.length", ""); $$->children.push_back($1);}
+  | parExpression LBRACKET Expression RBRACKET {$$ = new Node("Array access", ""); $$->children.push_back($1); $$->children.push_back($3);}
+  | parExpression DOT Identifier LPAR comExpression RPAR {$$ = new Node("Method call", ""); $$->children.push_back($1); $$->children.push_back($3); $$->children.push_back($5);}
+  | parExpression DOT Identifier LPAR RPAR {$$ = new Node("Method call", ""); $$->children.push_back($1); $$->children.push_back($3);}
+  | parExpression DOT LENGTH {$$ = new Node("Exp.length", ""); $$->children.push_back($1);}
   | NEW INT LBRACKET Expression RBRACKET {$$ = new Node("new int[] exp", ""); $$->children.push_back($4);}
   | NEW Identifier LPAR RPAR {$$ = new Node("Object instantiation", ""); $$->children.push_back($2);};
 
 comExpression: Expression {$$ = $1;}
   | comExpression COMMA Expression {$$ = new Node("Multiple Exp", ""); $$->children.push_back($1); $$->children.push_back($3);};
 
-// Par -> NOT -> * / -> +- -> LT / GT -> EQ -> AND -> OR
 Identifier: ID {
   $$ = new Node("ID", $1);
 };
