@@ -1,6 +1,7 @@
 compiler
 lex.yy.c
 *.cc
+!main.cc
 *.hh
 *.o
 *.dot

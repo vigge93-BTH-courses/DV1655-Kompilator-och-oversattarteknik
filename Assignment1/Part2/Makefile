@@ -3,7 +3,7 @@ compiler: lex.yy.c parser.tab.o main.cc
 parser.tab.o: parser.tab.cc
 		g++ -g -w -c parser.tab.cc -std=c++14
 parser.tab.cc: parser.yy
-		bison parser.yy
+		bison parser.yy -v
 lex.yy.c: minijava.flex parser.tab.cc
 		flex minijava.flex
 tree: 

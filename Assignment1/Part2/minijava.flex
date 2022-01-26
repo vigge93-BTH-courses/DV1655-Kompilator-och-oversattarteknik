@@ -4,7 +4,7 @@
     #include "Node.h"
 }
 %option noyywrap nounput batch noinput stack nodefault
-INTEGER_LITERAL 0|-?[1-9][0-9]*
+INTEGER_LITERAL 0|[1-9][0-9]*
 IDENTIFIER [a-zA-Z][a-zA-Z0-9_]*
 COMMENT \/\/.*
 %%
@@ -46,6 +46,7 @@ COMMENT \/\/.*
 "false" {return yy::parser::make_FALSE(yytext);}
 "this" {return yy::parser::make_THIS(yytext);}
 "new" {return yy::parser::make_NEW(yytext);}
+"return" {return yy::parser::make_RETURN(yytext);}
 {INTEGER_LITERAL} {return yy::parser::make_INT_LITERAL(yytext);}
 {IDENTIFIER} {return yy::parser::make_ID(yytext);}
 {COMMENT} {printf("COMMENT: %s\n", yytext);}
