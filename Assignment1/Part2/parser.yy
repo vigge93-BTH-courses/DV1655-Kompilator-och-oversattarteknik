@@ -22,7 +22,7 @@
 %token END 0 "end of file"
 
 // definition of the production rules. All production rules are of type Node
-%type <Node *> Goal MainClass ClassDeclaration ClassBody ClassDeclarationP ClassDeclarationMethods ClassDeclarationVars VarDeclaration MethodDeclaration MethodBody MethodDeclarationParams MethodDeclarationVars MethodDeclarationStatements Type Statement LRStatement Expression orExpression andExpression eqExpression lgExpression  multdivExpression  notExpression comExpression addsubExpression  parExpression  Identifier Int 
+%type <Node *> Goal MainClass ClassDeclaration ClassBody ClassDeclarationP ClassDeclarationMethods ClassDeclarationVars VarDeclaration MethodParam MethodDeclaration MethodBody MethodDeclarationParams MethodDeclarationVars MethodDeclarationStatements Type Statement LRStatement Expression orExpression andExpression eqExpression lgExpression  multdivExpression  notExpression comExpression addsubExpression  parExpression  Identifier Int 
 
 %%
 
@@ -35,7 +35,7 @@ MainClass:
   CLASS Identifier LBRACE PUBLIC STATIC VOID MAIN LPAR STRING LBRACKET RBRACKET Identifier RPAR LBRACE Statement RBRACE RBRACE {$$ = new Node("Main Class", ""); $$->children.push_back($2); $$->children.push_back($12); $$->children.push_back($15);};
 
 ClassDeclarationP:
-  ClassDeclaration {$$ = $1;}
+  ClassDeclaration {$$ = new Node("ClassList", ""); $$->children.push_back($1);}
   | ClassDeclarationP ClassDeclaration {$$ = $1; $$->children.push_back($2);};
 
 ClassDeclaration: CLASS Identifier ClassBody {$$ = new Node("Class", ""); $$->children.push_back($2); $$->children.push_back($3);}
@@ -44,14 +44,14 @@ ClassDeclaration: CLASS Identifier ClassBody {$$ = new Node("Class", ""); $$->ch
 ClassBody: 
   LBRACE RBRACE {$$ = new Node("No class body", "");}
 | LBRACE ClassDeclarationVars RBRACE {$$ = $2;}
-| LBRACE ClassDeclarationMethods RBRACE{$$ = $2;}
+| LBRACE ClassDeclarationMethods RBRACE {$$ = $2;}
 | LBRACE ClassDeclarationVars ClassDeclarationMethods RBRACE {$$ = new Node("Class body", ""); $$->children.push_back($2); $$->children.push_back($3);};
 
-ClassDeclarationVars: VarDeclaration {$$ = $1;}
-| ClassDeclarationVars VarDeclaration {$$ = new Node("Class vars", ""); $$->children.push_back($1); $$->children.push_back($2);}
+ClassDeclarationVars: VarDeclaration {$$ = new Node("Class vars" , ""); $$->children.push_back($1);}
+| ClassDeclarationVars VarDeclaration {$$ = $1; $$->children.push_back($2);}
 
-ClassDeclarationMethods: MethodDeclaration {$$ = $1;}
-| ClassDeclarationMethods MethodDeclaration {$$ = new Node("Class methods", ""); $$->children.push_back($1); $$->children.push_back($2);}
+ClassDeclarationMethods: MethodDeclaration {$$ = new Node("Method list", ""); $$->children.push_back($1);}
+| ClassDeclarationMethods MethodDeclaration {$$ = $1; $$->children.push_back($2);}
 
 MethodDeclaration:
 PUBLIC Type Identifier LPAR RPAR MethodBody {$$ = new Node("Method", ""); $$->children.push_back($2); $$->children.push_back($3); $$->children.push_back($6);}
@@ -62,15 +62,17 @@ MethodBody: LBRACE RETURN Expression SC RBRACE {$$ = $3;}
 | LBRACE MethodDeclarationStatements RETURN Expression SC RBRACE {$$ = new Node("Method body", "");$$->children.push_back($2); $$->children.push_back($4);}
 | LBRACE MethodDeclarationVars MethodDeclarationStatements RETURN Expression SC RBRACE {$$ = new Node("Method body", "");$$->children.push_back($2); $$->children.push_back($3); $$->children.push_back($5);};
 
+MethodParam:
+  Type Identifier {$$ = new Node("Method param", ""); $$->children.push_back($1); $$->children.push_back($2);};
 
-MethodDeclarationParams: Type Identifier {$$ = new Node("Method param", ""); $$->children.push_back($1); $$->children.push_back($2);}
-| MethodDeclarationParams COMMA Type Identifier {$$ = new Node("Method params", ""); $$->children.push_back($1); $$->children.push_back($3);};
+MethodDeclarationParams: MethodParam {$$ = new Node("Method params", ""); $$->children.push_back($1);}
+| MethodDeclarationParams COMMA MethodParam {$$ = $1; $$->children.push_back($3);};
 
-MethodDeclarationVars: VarDeclaration {$$ = $1;}
-| MethodDeclarationVars VarDeclaration {$$ = new Node("Method vars", ""); $$->children.push_back($1); $$->children.push_back($2);};
+MethodDeclarationVars: VarDeclaration {$$ = new Node("Method vars", ""); $$->children.push_back($1);}
+| MethodDeclarationVars VarDeclaration {$$ = $1; $$->children.push_back($2);};
 
-MethodDeclarationStatements: Statement {$$ = $1;}
-| MethodDeclarationStatements Statement {$$ = new Node("Method statements", ""); $$->children.push_back($1); $$->children.push_back($2);};
+MethodDeclarationStatements: Statement {$$ = new Node("Method Statements", ""); $$->children.push_back($1);}
+| MethodDeclarationStatements Statement {$$ = $1; $$->children.push_back($2);};
 
 VarDeclaration:
   Type Identifier SC {$$ = new Node("Variable", ""); $$->children.push_back($1); $$->children.push_back($2);};
@@ -92,7 +94,6 @@ Statement:
 LRStatement: 
   Statement {$$ = $1;}
 | LRStatement Statement { $$ = new Node("Statements", ""); $$->children.push_back($1); $$->children.push_back($2);};
-
 
 Expression:
   orExpression {$$ = $1;};
@@ -135,7 +136,7 @@ parExpression: Identifier {$$ = $1;}
   | NEW Identifier LPAR RPAR {$$ = new Node("Object instantiation", ""); $$->children.push_back($2);};
 
 comExpression: Expression {$$ = $1;}
-  | comExpression COMMA Expression {$$ = new Node("Multiple Exp", ""); $$->children.push_back($1); $$->children.push_back($3);};
+  | comExpression COMMA Expression {$$ = new Node("Params", ""); $$->children.push_back($1); $$->children.push_back($3);};
 
 Identifier: ID {
   $$ = new Node("ID", $1);
