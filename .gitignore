@@ -2,6 +2,8 @@ compiler
 lex.yy.c
 *.cc
 !main.cc
+!symbol_table.cc
+!semantic.cc
 *.hh
 *.o
 *.dot
