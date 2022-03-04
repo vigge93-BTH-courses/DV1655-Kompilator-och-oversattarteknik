@@ -162,6 +162,11 @@ SymbolTable::SymbolTable() {
     current = root;
 }
 
+vector<Record*> SymbolTable::getVariables(string name)
+{
+    return variables[name];
+}
+
 void SymbolTable::enterScope(string name, Record* record)
 {
     current = current->nextChild(name, record); // new scope if needed
@@ -173,6 +178,9 @@ void SymbolTable::exitScope()
 
 void SymbolTable::put(string key, Record *item)
 {
+    if (typeid(current->getScopeRecord()) == typeid(Method)) {
+        variables[current->parent()->getScopeName() + "." + current->getScopeName()].push_back(item);
+    }
     current->put(key, item);
 }
 

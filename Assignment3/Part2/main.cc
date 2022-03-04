@@ -3,6 +3,7 @@
 #include "symbol_table.h"
 #include "semantic.h"
 #include "cfg.h"
+#include "bytecode.h"
 
 extern Node* root;
 extern FILE* yyin;
@@ -37,6 +38,8 @@ int main(int argc, char **argv)
     methods.push_back(currentBlock);
     TraverseTreeTac(symbolTable, root);
     create_cfg(entry);
+    Program* program = new Program();
+
   }
 
   return 0;

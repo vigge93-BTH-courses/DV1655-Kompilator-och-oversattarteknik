@@ -96,9 +96,12 @@ class SymbolTable
 {
     Scope *root;
     Scope *current;
+    unordered_map<string, vector<Record*>> variables;
     
     public:
         SymbolTable();
+
+        vector<Record*> getVariables(string name);
 
         void enterScope(string name, Record* record);
 

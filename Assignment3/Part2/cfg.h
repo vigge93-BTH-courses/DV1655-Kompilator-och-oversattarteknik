@@ -4,7 +4,7 @@
 #include "symbol_table.h"
 #include "Node.h"
 #include <algorithm>
-
+#include "bytecode.h"
 
 
 class BBlock {
@@ -18,13 +18,13 @@ class BBlock {
 
     BBlock() : trueExit(NULL), falseExit(NULL), condition(NULL), name(genBlockName()) {}
 
-    void generateCode();
+    void generateCode(BCMethod* method, SymbolTable* symbolTable);
 
     static string genTempName();
 
     static string genBlockName();
 
-    static void generateBytecode();
+    static void generateBytecode(Program* program);
 
 };
 

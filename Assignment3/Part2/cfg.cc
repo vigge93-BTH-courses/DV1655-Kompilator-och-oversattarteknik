@@ -1,17 +1,21 @@
 #include "cfg.h"
+#include "symbol_table.h"
 
 BBlock *currentBlock;
 vector<BBlock*> methods;
 vector<string> renderedBlocks;
+vector<string> visited;
 
 void genUncondJumpIns(BBlock* block) {}
 
 void genCondJumpIns(Tac* cond, BBlock* trueBlock, BBlock* falseBlock) {}
 
-void BBlock::generateCode() {
+void BBlock::generateCode(BCMethod* method, SymbolTable* symbolTable) {
     for(Tac* i : tacInstructions) {
-        (*i).generateCode();
+        i->generateCode(method);
     }
+
+    // symbolTable->
 
     if (trueExit != NULL && falseExit == NULL) {
         genUncondJumpIns(trueExit);
@@ -31,9 +35,11 @@ string BBlock::genBlockName() {
 }
 
 
-void BBlock::generateBytecode() {
+void BBlock::generateBytecode(Program* program) {
     for (BBlock* i : methods) {
-
+        BCMethod* m = new BCMethod();
+        program->methods[i->name] = m;
+        i->generateCode(m);
     }
 }
 
