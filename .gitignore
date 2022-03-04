@@ -1,9 +1,11 @@
 compiler
 lex.yy.c
-*.cc
-!main.cc
-!symbol_table.cc
-!semantic.cc
+parser.tab.cc
 *.hh
 *.o
 *.dot
+.vscode/
+parser.output
+*.out
+*.zip
+**/getting_started/*

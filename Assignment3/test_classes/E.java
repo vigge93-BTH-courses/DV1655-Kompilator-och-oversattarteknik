@@ -3,7 +3,6 @@ class Minimal {
     {
 	    System.out.println((4*2)+10-2*6+(4-1)*2/2);
       System.out.println(true == (!true && false) || 10 > 1 && 1 < 10);
-      a[3 + 4] = a[4 / 3 + 5];
     }
   }
 }
