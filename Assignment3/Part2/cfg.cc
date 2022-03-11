@@ -52,11 +52,23 @@ void BBlock::generateBytecode(Program* program) {
 }
 
 string TraverseTreeTac (SymbolTable* symbolTable, Node* node) {
-    if (node->type == "Method") {
-        currentBlock = new BBlock(node->value);
+    if (node->type == "Class" || node->type == "Main Class") {
+        symbolTable->enterScope("", NULL);
+        for (auto i = node->children.begin(); i != node->children.end(); ++i) {
+            TraverseTreeTac(symbolTable, *i);
+        }
+        symbolTable->exitScope();
+        return node->value;
+    } if (node->type == "Method") {
+        symbolTable->enterScope("", NULL);
+        currentBlock = new BBlock(symbolTable->GetCurrentScope()->parent()->getScopeName().substr(7) + "." + node->value);
         methods.push_back(currentBlock);
-    }
-    if (node->type == "Method body") {
+        for (auto i = node->children.begin(); i != node->children.end(); ++i) {
+            TraverseTreeTac(symbolTable, *i);
+        }
+        symbolTable->exitScope();
+        return node->value;
+    } else if (node->type == "Method body") {
         string name;
         for (auto i = node->children.begin(); i != node->children.end(); ++i) {
             name = TraverseTreeTac(symbolTable, *i);
@@ -361,20 +373,25 @@ string TraverseTreeTac (SymbolTable* symbolTable, Node* node) {
 }
 
 void create_block_cfg(BBlock* block, ofstream* outStream) {
-    *outStream << block->name << " [label=\"" << block->name << "\\n";
+    auto dotPos = block->name.find(".");
+    string graphvizname = block->name;
+    if (dotPos != std::string::npos) {
+        graphvizname = graphvizname.replace(dotPos, 1, "");
+    }
+    *outStream << graphvizname << " [label=\"" << block->name << "\\n";
     renderedBlocks.push_back(block->name);
     for (auto i = block->tacInstructions.begin(); i != block->tacInstructions.end(); ++i) {
         *outStream << (*i)->get_str() << "\\n";
     }
     *outStream << "\"];" << std::endl;
     if (block->trueExit != NULL) {
-        *outStream << block->name << " -> " << block->trueExit->name << "[xlabel=\"true\"];" << endl;
+        *outStream << graphvizname << " -> " << block->trueExit->name << "[xlabel=\"true\"];" << endl;
         if (find(renderedBlocks.begin(), renderedBlocks.end(), block->trueExit->name) == renderedBlocks.end()) {
             create_block_cfg(block->trueExit, outStream);
         }
     }
     if (block->falseExit != NULL) {
-        *outStream << block->name << " -> " << block->falseExit->name << "[xlabel=\"false\"];" << endl;
+        *outStream << graphvizname << " -> " << block->falseExit->name << "[xlabel=\"false\"];" << endl;
         create_block_cfg(block->falseExit, outStream);
     }
 }

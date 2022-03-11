@@ -2,7 +2,6 @@
 
 
 void Instruction::print(ofstream* outStream) {
-    cout << "instruction: " << id << " Argument: " << argument << endl;
     string inst_name;
     switch(id) {
         case 0:
@@ -79,7 +78,6 @@ void Program::print()
     outStream.open("bytecode.bc");
 
     for(pair<string, BCMethod*> kvp : methods) {
-        cout << kvp.first << endl;
         // outStream << kvp.first  << ":" << endl;
         kvp.second->print(&outStream);
     }

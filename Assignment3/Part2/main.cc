@@ -36,6 +36,7 @@ int main(int argc, char **argv)
     BBlock *entry = new BBlock("main");
     currentBlock = entry;
     methods.push_back(currentBlock);
+    symbolTable->resetTable();
     TraverseTreeTac(symbolTable, root);
     create_cfg(entry);
     Program* program = new Program();
