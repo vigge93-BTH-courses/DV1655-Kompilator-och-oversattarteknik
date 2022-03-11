@@ -6,23 +6,28 @@ vector<BBlock*> methods;
 vector<string> renderedBlocks;
 vector<string> visited;
 
-void genUncondJumpIns(BBlock* block) {}
-
-void genCondJumpIns(Tac* cond, BBlock* trueBlock, BBlock* falseBlock) {}
-
-void BBlock::generateCode(BCMethod* method, SymbolTable* symbolTable) {
+void BBlock::generateCode(BCMethod* method) {
+    MethodBlock* methodBlock = new MethodBlock();
+    methodBlock->name = name;
+    visited.push_back(name);
+    method->methodBlocks.push_back(methodBlock);
     for(Tac* i : tacInstructions) {
-        i->generateCode(method);
+        i->generateCode(methodBlock);
     }
 
-    // symbolTable->
-
     if (trueExit != NULL && falseExit == NULL) {
-        genUncondJumpIns(trueExit);
+        if(find(visited.begin(), visited.end(), trueExit->name) == visited.end()) {
+            trueExit->generateCode(method);
+        }
     }
     else if (trueExit != NULL && falseExit != NULL)
     {
-        genCondJumpIns(condition, trueExit, falseExit);
+        if(find(visited.begin(), visited.end(), trueExit->name) == visited.end()) {
+            trueExit->generateCode(method);
+        }
+        if(find(visited.begin(), visited.end(), falseExit->name) == visited.end()) {
+            falseExit->generateCode(method);
+        }
     }
 }
 
@@ -41,11 +46,14 @@ void BBlock::generateBytecode(Program* program) {
         program->methods[i->name] = m;
         i->generateCode(m);
     }
+    Instruction* stop_inst = new Instruction();
+    stop_inst->id = 16;
+    program->methods["main"]->methodBlocks.back()->instructions.push_back(stop_inst);
 }
 
 string TraverseTreeTac (SymbolTable* symbolTable, Node* node) {
     if (node->type == "Method") {
-        currentBlock = new BBlock();
+        currentBlock = new BBlock(node->value);
         methods.push_back(currentBlock);
     }
     if (node->type == "Method body") {
@@ -66,20 +74,26 @@ string TraverseTreeTac (SymbolTable* symbolTable, Node* node) {
         currentBlock->trueExit = trueBlock;
         currentBlock->falseExit = falseBlock;
         
+        Tac* jmp = new Jump(joinBlock->name);
+
         auto child = node->children.begin();
         string cond_name = TraverseTreeTac(symbolTable, *child);
         Tac* condition = new CondJump(cond_name, falseBlock->name);
         currentBlock->tacInstructions.push_back(condition);
         currentBlock->condition = condition;
+        Tac* jmpTrue = new Jump(trueBlock->name);
+        currentBlock->tacInstructions.push_back(jmpTrue);
         
         advance(child, 1);
         currentBlock = trueBlock;
         TraverseTreeTac(symbolTable, *child);
+        currentBlock->tacInstructions.push_back(jmp);
         currentBlock->trueExit = joinBlock;
         
         advance(child, 1);
         currentBlock = falseBlock;
         TraverseTreeTac(symbolTable, *child);
+        currentBlock->tacInstructions.push_back(jmp);
         currentBlock->trueExit = joinBlock;
         
         currentBlock = joinBlock;
@@ -91,18 +105,21 @@ string TraverseTreeTac (SymbolTable* symbolTable, Node* node) {
         BBlock* joinBlock = new BBlock();
 
         currentBlock->trueExit = hBlock;
-        
+        Tac* jmp = new Jump(hBlock->name);
+        currentBlock->tacInstructions.push_back(jmp);
+
         auto child = node->children.begin();
         currentBlock = hBlock;
         string cond_name = TraverseTreeTac(symbolTable, *child);
         Tac* cond = new CondJump(cond_name, joinBlock->name);
         currentBlock->tacInstructions.push_back(cond);
         currentBlock->condition = cond;
+        Tac* jmpTr = new Jump(trueBlock->name);
+        currentBlock->tacInstructions.push_back(jmpTr);
         
         advance(child, 1);
         currentBlock = trueBlock;
         TraverseTreeTac(symbolTable, *child);
-        Tac* jmp = new Jump(hBlock->name);
         currentBlock->tacInstructions.push_back(jmp);
         currentBlock->trueExit = hBlock;
 

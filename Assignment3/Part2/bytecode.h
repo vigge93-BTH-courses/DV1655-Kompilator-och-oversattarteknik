@@ -2,34 +2,42 @@
 #define BYTECODE_H
 
 #include "symbol_table.h"
+#include <map>
 
 
 
-typedef union Argument {
-    int i;
-    string m;
-} Argument;
+// typedef union Argument {
+//     int i;
+//     string m;
+// } Argument;
 
 
 class Instruction {
     public:
     int id;
-    Argument *argument;
+    string argument;
 
-    void print();
+    void print(ofstream *outStream);
+};
+
+class MethodBlock {
+    public:
+    string name;
+    vector<Instruction*> instructions;
+    void print(ofstream *outSteam);
 };
 
 class BCMethod {
     public:
     vector<Variable> variables;
-    vector<Instruction*> instructions;
-    void print();
+    vector<MethodBlock*> methodBlocks;
+    void print(ofstream *outStream);
 };
 
 
 class Program {
     public:
-    unordered_map<string, BCMethod*> methods;
+    map<string, BCMethod*> methods;
     void print();
 
 };

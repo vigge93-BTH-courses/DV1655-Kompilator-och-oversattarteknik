@@ -33,13 +33,14 @@ int main(int argc, char **argv)
     symbolTable->printTable();
     semantic_analysis(symbolTable, root);
     
-    BBlock *entry = new BBlock();
+    BBlock *entry = new BBlock("main");
     currentBlock = entry;
     methods.push_back(currentBlock);
     TraverseTreeTac(symbolTable, root);
     create_cfg(entry);
     Program* program = new Program();
-
+    BBlock::generateBytecode(program);
+    program->print();
   }
 
   return 0;

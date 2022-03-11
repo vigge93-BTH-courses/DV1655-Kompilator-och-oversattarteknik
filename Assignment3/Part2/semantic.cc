@@ -81,7 +81,7 @@ string traverseTreeSemantic(SymbolTable* symbolTable, Node* node) {
         return "void";
     } else if (node->type == "Print") {
         auto lhs = traverseTreeSemantic(symbolTable, node->children.front());
-        if (lhs != "int") {
+        if (lhs != "int" && lhs != "boolean") {
             cout << "Cannot convert from '" << lhs << "' to int" << endl;
             exit(-1);
         }

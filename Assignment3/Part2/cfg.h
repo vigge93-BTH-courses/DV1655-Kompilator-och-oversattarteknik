@@ -18,7 +18,8 @@ class BBlock {
 
     BBlock() : trueExit(NULL), falseExit(NULL), condition(NULL), name(genBlockName()) {}
 
-    void generateCode(BCMethod* method, SymbolTable* symbolTable);
+    BBlock(string _name) : trueExit(NULL), falseExit(NULL), condition(NULL), name(_name) {}
+    void generateCode(BCMethod* method/*, SymbolTable* symbolTable*/);
 
     static string genTempName();
 
@@ -28,13 +29,12 @@ class BBlock {
 
 };
 
-void genUncondJumpIns(BBlock* block);
-
 void genCondJumpIns(Tac* cond, BBlock* trueBlock, BBlock* falseBlock);
 
 extern BBlock *currentBlock;
 extern vector<BBlock*> methods;
 extern vector<string> renderedBlocks;
+extern vector<string> visited;
 
 string TraverseTreeTac (SymbolTable* symbolTable, Node* node);
 void create_block_cfg(BBlock* block, ofstream *outStream);

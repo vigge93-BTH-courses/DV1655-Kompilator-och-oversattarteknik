@@ -9,5 +9,5 @@ lex.yy.c: minijava.flex parser.tab.cc
 tree: 
 		 dot -Tpdf tree.dot -otree.pdf
 clean:
-		rm -f parser.tab.* lex.yy.c* compiler stack.hh *.dot tree.pdf symbol_table.dot *.o parser.output
+		rm -f parser.tab.* lex.yy.c* compiler stack.hh *.dot tree.pdf symbol_table.dot *.o parser.output *.bc
 		rm -R compiler.dSYM
