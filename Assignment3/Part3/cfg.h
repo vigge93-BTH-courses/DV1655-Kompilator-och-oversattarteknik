@@ -19,7 +19,7 @@ class BBlock {
     BBlock() : trueExit(NULL), falseExit(NULL), condition(NULL), name(genBlockName()) {}
 
     BBlock(string _name) : trueExit(NULL), falseExit(NULL), condition(NULL), name(_name) {}
-    void generateCode(BCMethod* method/*, SymbolTable* symbolTable*/);
+    void generateCode(BCMethod* method, string methodName);
 
     static string genTempName();
 

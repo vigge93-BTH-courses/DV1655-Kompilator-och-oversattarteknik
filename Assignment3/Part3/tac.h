@@ -120,6 +120,13 @@ class Param : public Tac {
     void generateCode(MethodBlock* method);
 };
 
+class MethodParam : public Tac {
+    public:
+    MethodParam(string _result);
+    string get_str();
+    void generateCode(MethodBlock* method);
+};
+
 class Return : public Tac {
     public:
     Return(string _result);

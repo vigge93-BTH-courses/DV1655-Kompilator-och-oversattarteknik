@@ -38,6 +38,8 @@ class BCMethod {
     vector<string> variables;
     vector<MethodBlock*> methodBlocks;
     void print(ofstream *outStream);
+    Instruction* getInstruction(int pc);
+    int getPcValue(string blockName);
 };
 
 

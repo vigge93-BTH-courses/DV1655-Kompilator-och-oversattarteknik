@@ -29,30 +29,33 @@ void Instruction::print(ofstream* outStream) {
             inst_name = "ilt";
             break;
         case 8:
-            inst_name = "iand";
+            inst_name = "ieq";
             break;
         case 9:
-            inst_name = "ior";
+            inst_name = "iand";
             break;
         case 10:
-            inst_name = "inot";
+            inst_name = "ior";
             break;
         case 11:
-            inst_name = "goto";
+            inst_name = "inot";
             break;
         case 12:
-            inst_name = "iffalse goto";
+            inst_name = "goto";
             break;
         case 13:
-            inst_name = "invokevirtual";
+            inst_name = "iffalse";
             break;
         case 14:
-            inst_name = "ireturn";
+            inst_name = "invokevirtual";
             break;
         case 15:
-            inst_name = "print";
+            inst_name = "ireturn";
             break;
         case 16:
+            inst_name = "print";
+            break;
+        case 17:
             inst_name = "stop";
             break;
     }
@@ -72,10 +75,32 @@ void BCMethod::print(ofstream *outStream) {
     }
 }
 
+Instruction* BCMethod::getInstruction(int pc) {
+    int i = 0;
+    MethodBlock* currentBlock; 
+    while (pc >= 0) {
+        currentBlock = methodBlocks[i++];
+        pc -= currentBlock->instructions.size();
+    }
+    return currentBlock->instructions[currentBlock->instructions.size() + pc];
+}
+
+int BCMethod::getPcValue(string block) {
+    int i = 0;
+    int pc = 0;
+    MethodBlock* currentBlock = methodBlocks[i++];
+    while (currentBlock->name != block){
+        pc += currentBlock->instructions.size();
+        currentBlock = methodBlocks[i++];
+
+    }
+    return pc;
+}
+
 void Program::print()
 {
     ofstream outStream;
-    outStream.open("bytecode.bc");
+    outStream.open("output.bc");
 
     for(pair<string, BCMethod*> kvp : methods) {
         // outStream << kvp.first  << ":" << endl;

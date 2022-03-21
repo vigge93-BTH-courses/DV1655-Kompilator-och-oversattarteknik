@@ -6,7 +6,7 @@ vector<BBlock*> methods;
 vector<string> renderedBlocks;
 vector<string> visited;
 
-void BBlock::generateCode(BCMethod* method) {
+void BBlock::generateCode(BCMethod* method, string methodName) {
     MethodBlock* methodBlock = new MethodBlock();
     methodBlock->name = name;
     visited.push_back(name);
@@ -17,16 +17,22 @@ void BBlock::generateCode(BCMethod* method) {
 
     if (trueExit != NULL && falseExit == NULL) {
         if(find(visited.begin(), visited.end(), trueExit->name) == visited.end()) {
-            trueExit->generateCode(method);
+            trueExit->generateCode(method, methodName);
         }
     }
     else if (trueExit != NULL && falseExit != NULL)
     {
         if(find(visited.begin(), visited.end(), trueExit->name) == visited.end()) {
-            trueExit->generateCode(method);
+            trueExit->generateCode(method, methodName);
         }
         if(find(visited.begin(), visited.end(), falseExit->name) == visited.end()) {
-            falseExit->generateCode(method);
+            falseExit->generateCode(method, methodName);
+        }
+    } else {
+        if (methodName == "main") {
+            Instruction* stop_inst = new Instruction();
+            stop_inst->id = 17;
+            methodBlock->instructions.push_back(stop_inst);
         }
     }
 }
@@ -44,11 +50,8 @@ void BBlock::generateBytecode(Program* program) {
     for (BBlock* i : methods) {
         BCMethod* m = new BCMethod();
         program->methods[i->name] = m;
-        i->generateCode(m);
+        i->generateCode(m, i->name);
     }
-    Instruction* stop_inst = new Instruction();
-    stop_inst->id = 16;
-    program->methods["main"]->methodBlocks.back()->instructions.push_back(stop_inst);
 }
 
 string TraverseTreeTac (SymbolTable* symbolTable, Node* node) {
@@ -68,7 +71,15 @@ string TraverseTreeTac (SymbolTable* symbolTable, Node* node) {
         }
         symbolTable->exitScope();
         return node->value;
-    } else if (node->type == "Method body") {
+    } else if (node->type == "Method params") {
+        for (auto i = node->children.rbegin(); i != node->children.rend(); ++i) {
+            string name = (*i)->children.back()->value;
+            Tac* in = new MethodParam(name);
+            currentBlock->tacInstructions.push_back(in);
+        }
+        return "";
+    }
+    else if (node->type == "Method body") {
         string name;
         for (auto i = node->children.begin(); i != node->children.end(); ++i) {
             name = TraverseTreeTac(symbolTable, *i);
@@ -308,10 +319,10 @@ string TraverseTreeTac (SymbolTable* symbolTable, Node* node) {
         symbolTable->put(name, new Variable(name, ""));
         auto child = node->children.begin();
         string caller = TraverseTreeTac(symbolTable, *child);
-        Tac* caller_tac = new Param(caller);
-        currentBlock->tacInstructions.push_back(caller_tac);
+        // Tac* caller_tac = new Param(caller);
+        // currentBlock->tacInstructions.push_back(caller_tac);
         advance(child, 1);
-        string methodName = (*child)->value;
+        string methodName = symbolTable->lookup(caller)->getType() + "." + (*child)->value;
         int length = 1;
         advance(child, 1);
         if (child != node->children.end()) {

@@ -64,8 +64,9 @@ void Expression::generateCode(MethodBlock* method) {
     else if (op == "/") op_inst->id = 6;
     else if (op == "<") op_inst->id = 7;
     else if (op == ">") op_inst->id = 7; // Check order of lhs, rhs
-    else if (op == "and") op_inst->id = 8;
-    else if (op == "or") op_inst->id = 9;
+    else if (op == "==") op_inst->id = 8;
+    else if (op == "and") op_inst->id = 9;
+    else if (op == "or") op_inst->id = 10;
     store_inst->id = 2;
     store_inst->argument = result;
     method->instructions.push_back(load_lhs_inst);
@@ -97,7 +98,7 @@ void UnaryExpression::generateCode(MethodBlock* method) {
     }
     load_rhs_inst->argument = rhs;
     
-    if (op == "!") op_inst->id = 10;
+    if (op == "!") op_inst->id = 11;
 
     store_inst->id = 2;
     store_inst->argument = result;
@@ -167,7 +168,7 @@ string MethodCall::get_str() {
 void MethodCall::generateCode(MethodBlock* method) {
     Instruction* call_inst = new Instruction();
     Instruction* ret_inst = new Instruction();
-    call_inst->id = 13;
+    call_inst->id = 14;
     call_inst->argument = lhs;
     ret_inst->id = 2;
     ret_inst->argument = result;
@@ -183,7 +184,7 @@ string Jump::get_str() {
 }
 void Jump::generateCode(MethodBlock* method) {
    Instruction* gotoInst = new Instruction();
-   gotoInst->id = 11;
+   gotoInst->id = 12;
    gotoInst->argument = result;
    method->instructions.push_back(gotoInst); 
 }
@@ -208,7 +209,7 @@ void CondJump::generateCode(MethodBlock* method) {
         loadInstr->id = 0; // iload
     }
     loadInstr->argument = lhs;
-    jmpInstr->id = 12;
+    jmpInstr->id = 13;
     jmpInstr->argument = result;
     method->instructions.push_back(loadInstr);
     method->instructions.push_back(jmpInstr);
@@ -262,6 +263,20 @@ void Param::generateCode(MethodBlock* method) {
 
 #pragma endregion
 
+#pragma region MethodParam
+MethodParam::MethodParam(string _result) : Tac("methodparam", "", "", _result) {}
+string MethodParam::get_str() {
+        return op + " " + result;
+    }
+void MethodParam::generateCode(MethodBlock* method) {
+    Instruction* paramInst = new Instruction();
+    paramInst->id = 2;
+    paramInst->argument = result;
+    method->instructions.push_back(paramInst);
+}
+
+#pragma endregion
+
 #pragma region Return
 Return::Return(string _result) : Tac("return", "", "", _result) {}
 string Return::get_str() {
@@ -280,7 +295,7 @@ void Return::generateCode(MethodBlock* method) {
         valInstr->id = 0; // iload
     }
     valInstr->argument = result;
-    retInstr->id = 14;
+    retInstr->id = 15;
     method->instructions.push_back(valInstr);
     method->instructions.push_back(retInstr);
 }
@@ -306,7 +321,7 @@ void Print::generateCode(MethodBlock* method) {
     }
     load_res_inst->argument = result;
     
-    op_inst->id = 15;
+    op_inst->id = 16;
 
     method->instructions.push_back(load_res_inst);
     method->instructions.push_back(op_inst);
